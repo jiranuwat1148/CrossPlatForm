@@ -1,5 +1,5 @@
 export type FolderTarget = 'source' | 'dest'
-import { ListFiles, SetFolder } from '~~/wailsjs/go/main/App'
+import { CopyFiles, ListFiles, SetFolder } from '~~/wailsjs/go/main/App'
 
 
 // Nuxt โหลด plugin ให้อัตโนมัติ และให้เรียกผ่าน useNuxtApp().$folders
@@ -37,7 +37,10 @@ async function listFiles(_target: FolderTarget, path: string): Promise<string[]>
 
   return {
     provide: {
-      folders: { setFolder, listFiles },
+      folders: { setFolder, listFiles, copyFiles },
     },
   }
 })
+async function copyFiles(sourcePath: string, destPath: string): Promise<number> {
+  return CopyFiles(sourcePath, destPath)
+}

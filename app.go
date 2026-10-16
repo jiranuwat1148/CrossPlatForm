@@ -89,6 +89,7 @@ func (a *App) ListFiles(path string) ([]string, error) {
 	return files, nil
 }
 
+// คัดลอกไฟล์
 func (a *App) CopyFiles(sourcePath string, destPath string) (int, error) {
 	sourcePath = strings.TrimSpace(sourcePath)
 	destPath = strings.TrimSpace(destPath)
@@ -122,7 +123,7 @@ func (a *App) CopyFiles(sourcePath string, destPath string) (int, error) {
 		if entry.IsDir() {
 			continue
 		}
-
+		//เอา path มาต่อกับชื่อไฟล์จะได้ paht เต็ม
 		sourceFilePath := filepath.Join(sourceAbsolute, entry.Name())
 		destFilePath := filepath.Join(destAbsolute, entry.Name())
 
@@ -136,7 +137,7 @@ func (a *App) CopyFiles(sourcePath string, destPath string) (int, error) {
 			sourceFile.Close()
 			return copied, fmt.Errorf("สร้างไฟล์ปลายทาง %s ไม่ได้: %w", entry.Name(), err)
 		}
-
+		//คัดลอกข้อมูลจากไฟล์ต้นทางไปไฟล์ปลายทาง แล้วปิดไฟล์ทั้งสอง
 		_, copyErr := io.Copy(destFile, sourceFile)
 		sourceCloseErr := sourceFile.Close()
 		destCloseErr := destFile.Close()

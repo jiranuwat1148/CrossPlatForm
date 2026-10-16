@@ -10,6 +10,7 @@ export function useFolders() {
   const destFiles = useState<string[]>('folders:destFiles', () => [])
   const busy = useState('folders:busy', () => false)
   const error = useState('folders:error', () => '')
+  const copiedCount = useState<number | null>('folders:copiedCount', () => null)
 
   async function run(task: () => Promise<void>) {
     if (busy.value) return
@@ -47,6 +48,23 @@ async function setFolder(target: FolderTarget, input: string) {
       else destFiles.value = names
     })
   }
+  async function backup() {
+  await run(async () => {
+    copiedCount.value = null
+    copiedCount.value = await folders.copyFiles(source.value, dest.value)
+  })
+}
 
-  return { source, dest, sourceFiles, destFiles, busy, error, setFolder, reloadFiles }
+  return {
+  source,
+  dest,
+  sourceFiles,
+  destFiles,
+  busy,
+  error,
+  copiedCount,
+  setFolder,
+  reloadFiles,
+  backup,
+}
 }
