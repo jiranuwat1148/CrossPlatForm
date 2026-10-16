@@ -6,12 +6,32 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/glebarez/sqlite"
+	"gorm.io/gorm"
 )
+
+type Setting struct {
+	ID     uint `gorm:"primaryKey"`
+	Source string
+	Dest   string
+}
 
 func main() {
 	//เก็บโฟลเดอร์ที่ผู้ใช้เลือก
 	source := ""
 	dest := ""
+
+	db, err := gorm.Open(sqlite.Open("crossplatform.db"), &gorm.Config{})
+	if err != nil {
+		fmt.Println("เปิดฐานข้อมูลไม่ได้:", err)
+		return
+	}
+
+	if err := db.AutoMigrate(&Setting{}); err != nil {
+		fmt.Println("สร้างตารางไม่ได้:", err)
+		return
+	}
 	// อ่านข้อความจาก Terminal ทีละบรรทัด
 	scanner := bufio.NewScanner(os.Stdin)
 
