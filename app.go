@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -86,4 +87,72 @@ func (a *App) ListFiles(path string) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func (a *App) CopyFiles(sourcePath string, destPath string) (int, error) {
+	sourcePath = strings.TrimSpace(sourcePath)
+	destPath = strings.TrimSpace(destPath)
+
+	if sourcePath == "" || destPath == "" {
+		return 0, fmt.Errorf("กรุณาตั้งค่าโฟลเดอร์ต้นทางและปลายทางก่อน")
+	}
+
+	sourceAbsolute, err := filepath.Abs(sourcePath)
+	if err != nil {
+		return 0, fmt.Errorf("ตรวจสอบโฟลเดอร์ต้นทางไม่ได้: %w", err)
+	}
+
+	destAbsolute, err := filepath.Abs(destPath)
+	if err != nil {
+		return 0, fmt.Errorf("ตรวจสอบโฟลเดอร์ปลายทางไม่ได้: %w", err)
+	}
+
+	if sourceAbsolute == destAbsolute {
+		return 0, fmt.Errorf("โฟลเดอร์ต้นทางกับปลายทางต้องไม่ใช่โฟลเดอร์เดียวกัน")
+	}
+
+	entries, err := os.ReadDir(sourceAbsolute)
+	if err != nil {
+		return 0, fmt.Errorf("อ่านโฟลเดอร์ต้นทางไม่ได้: %w", err)
+	}
+
+	copied := 0
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		sourceFilePath := filepath.Join(sourceAbsolute, entry.Name())
+		destFilePath := filepath.Join(destAbsolute, entry.Name())
+
+		sourceFile, err := os.Open(sourceFilePath)
+		if err != nil {
+			return copied, fmt.Errorf("เปิดไฟล์ %s ไม่ได้: %w", entry.Name(), err)
+		}
+
+		destFile, err := os.Create(destFilePath)
+		if err != nil {
+			sourceFile.Close()
+			return copied, fmt.Errorf("สร้างไฟล์ปลายทาง %s ไม่ได้: %w", entry.Name(), err)
+		}
+
+		_, copyErr := io.Copy(destFile, sourceFile)
+		sourceCloseErr := sourceFile.Close()
+		destCloseErr := destFile.Close()
+
+		if copyErr != nil {
+			return copied, fmt.Errorf("คัดลอกไฟล์ %s ไม่สำเร็จ: %w", entry.Name(), copyErr)
+		}
+		if sourceCloseErr != nil {
+			return copied, fmt.Errorf("ปิดไฟล์ต้นทาง %s ไม่สำเร็จ: %w", entry.Name(), sourceCloseErr)
+		}
+		if destCloseErr != nil {
+			return copied, fmt.Errorf("ปิดไฟล์ปลายทาง %s ไม่สำเร็จ: %w", entry.Name(), destCloseErr)
+		}
+
+		copied++
+	}
+
+	return copied, nil
 }
