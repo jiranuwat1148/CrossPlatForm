@@ -1,13 +1,13 @@
 package main
 
 import (
+	"Backup_image/model"
+	"Backup_image/repository"
 	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"Backup_image/repository"
 )
 
 type Setting struct {
@@ -27,7 +27,7 @@ func main() {
 		return
 	}
 
-	if err := db.AutoMigrate(&Setting{}); err != nil {
+	if err := db.AutoMigrate(&model.Image{}); err != nil {
 		fmt.Println("สร้างตารางไม่ได้:", err)
 		return
 	}
