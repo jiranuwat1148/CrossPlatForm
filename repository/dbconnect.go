@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"Backup_image/model"
+
 	"github.com/glebarez/sqlite"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -19,20 +20,19 @@ func NewDbConnection() (*gorm.DB, error) {
 	}
 
 	dbPath := strings.TrimSpace(os.Getenv("DATABASE"))
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return nil, fmt.Errorf("get user config directory: %w", err)
+	}
+	appDataDir := filepath.Join(configDir, "Backup_image")
 	if dbPath == "" {
-		configDir, err := os.UserConfigDir()
-		if err != nil {
-			return nil, fmt.Errorf("get user config directory: %w", err)
-		}
-		dbPath = filepath.Join(configDir, "Backup_image", "image.db")
+		dbPath = filepath.Join(appDataDir, "image.db")
 	} else if !filepath.IsAbs(dbPath) {
-		var err error
 		dbPath, err = filepath.Abs(dbPath)
 		if err != nil {
 			return nil, fmt.Errorf("resolve database path: %w", err)
 		}
 	}
-
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("create database directory: %w", err)
 	}
