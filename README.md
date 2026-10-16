@@ -1,19 +1,44 @@
-# README
+# Backup Image
 
 ## About
 
-This is the official Wails Vanilla template.
+A desktop application using Wails v2 and Nuxt 4. The Go entry point is
+`main.go`, and the frontend is in `frontend/app`.
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+## Requirements
+
+- Go 1.26 or later
+- Node.js compatible with Nuxt 4 and npm
+- Wails CLI v2.15.0: `go install github.com/wailsapp/wails/v2/cmd/wails@v2.15.0`
+
+On Ubuntu, install the native build dependencies:
+
+```bash
+sudo apt update
+sudo apt install build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+```
+
+The WebKit 4.1 build tag is configured in `wails.json`, so no extra command-line
+flags are needed.
 
 ## Live Development
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+Run from the project root:
+
+```bash
+wails dev
+```
+
+Wails installs frontend dependencies, generates the Go bindings and static
+assets, starts the Nuxt development server, and opens the desktop window.
+Changes to the frontend reload through Nuxt; changes to Go rebuild the app.
 
 ## Building
 
-To build a redistributable, production mode package, use `wails build`.
+```bash
+wails build
+```
+
+Nuxt runs in client-side mode. Wails uses `npm run generate` to create the static
+frontend in `frontend/.output/public` and embeds it into the application.
+The executable is written to `build/bin`.

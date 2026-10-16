@@ -24,19 +24,20 @@ export function useFolders() {
     }
   }
 
-  async function setFolder(target: FolderTarget, input: string) {
-    await run(async () => {
-      const path = await folders.setFolder(target, input)
-      const names = await folders.listFiles(target, path)
-      if (target === 'source') {
-        source.value = path
-        sourceFiles.value = names
-      } else {
-        dest.value = path
-        destFiles.value = names
-      }
-    })
-  }
+async function setFolder(target: FolderTarget, input: string) {
+  await run(async () => {
+    const path = await folders.setFolder(target, input)
+
+    if (target === 'source') {
+      source.value = path
+      sourceFiles.value = []
+    } else {
+      dest.value = path
+      destFiles.value = []
+    }
+  })
+}
+
 
   async function reloadFiles(target: FolderTarget) {
     await run(async () => {

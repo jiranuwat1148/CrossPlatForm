@@ -1,4 +1,6 @@
 export type FolderTarget = 'source' | 'dest'
+import { ListFiles, SetFolder } from '~~/wailsjs/go/main/App'
+
 
 // Nuxt โหลด plugin ให้อัตโนมัติ และให้เรียกผ่าน useNuxtApp().$folders
 export default defineNuxtPlugin(() => {
@@ -24,15 +26,14 @@ export default defineNuxtPlugin(() => {
   }
 
   // จุดเชื่อม Go: เปลี่ยนเนื้อหาให้เรียก SetSource/SetDest ที่เพื่อนสร้าง
-  async function setFolder(_target: FolderTarget, input: string): Promise<string> {
-    return findFolder(input).path
-  }
+async function setFolder(target: FolderTarget, input: string): Promise<string> {
+  return SetFolder(target, input)
+}
 
   // จุดเชื่อม Go: เปลี่ยนเนื้อหาให้เรียก ListFiles และคืนชื่อไฟล์เป็นอาร์เรย์
-  async function listFiles(_target: FolderTarget, path: string): Promise<string[]> {
-    if (!path) throw new Error('กรุณาตั้งค่าโฟลเดอร์ก่อน')
-    return [...findFolder(path).files].sort()
-  }
+async function listFiles(_target: FolderTarget, path: string): Promise<string[]> {
+  return ListFiles(path)
+}
 
   return {
     provide: {
