@@ -7,8 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/glebarez/sqlite"
-	"gorm.io/gorm"
+	"Backup_image/repository"
 )
 
 type Setting struct {
@@ -22,7 +21,7 @@ func main() {
 	source := ""
 	dest := ""
 
-	db, err := gorm.Open(sqlite.Open("crossplatform.db"), &gorm.Config{})
+	db, err := repository.NewDbConnection()
 	if err != nil {
 		fmt.Println("เปิดฐานข้อมูลไม่ได้:", err)
 		return
