@@ -41,11 +41,16 @@ func NewDbConnection() (*gorm.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
-	if err := database.AutoMigrate(&model.Image{}, &model.Tag{}); err != nil {
+	if err := database.AutoMigrate(
+		&model.Image{},
+		&model.Tag{},
+		&model.BackupRecord{},
+	); err != nil {
 		return nil, fmt.Errorf("migrate database: %w", err)
 	}
 	if err := database.Exec("CREATE INDEX IF NOT EXISTS idx_image_tags_tag_id ON image_tags(tag_id)").Error; err != nil {
 		return nil, fmt.Errorf("index image tags: %w", err)
 	}
+
 	return database, nil
 }
