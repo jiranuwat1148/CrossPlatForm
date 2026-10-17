@@ -4,6 +4,8 @@ import (
 	"embed"
 	"log"
 
+	"Backup_image/repository"
+	"Backup_image/service"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -13,7 +15,17 @@ import (
 var assets embed.FS
 
 func main() {
-	app := NewApp()
+	db, dbErr := repository.NewDbConnection()
+	if dbErr != nil {
+		log.Printf("database unavailable: %v", dbErr)
+	}
+	backupRepository := repository.NewBackupRepository(db)
+	imageRepository := repository.NewImageRepository(db)
+	app := NewApp(
+		service.NewBackupService(backupRepository),
+		service.NewImageService(imageRepository),
+		dbErr,
+	)
 
 	err := wails.Run(&options.App{
 		Title:  "Backup Image",

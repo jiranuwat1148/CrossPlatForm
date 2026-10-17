@@ -6,7 +6,6 @@ const { source, dest, busy, error, setFolder } = useFolders()
   <div class="program">
     <header class="program-header">
       <h1>Flash Drive Backup</h1>
-      <span class="demo-label">ข้อมูลตัวอย่าง</span>
     </header>
 
     <main>
@@ -22,10 +21,10 @@ const { source, dest, busy, error, setFolder } = useFolders()
       <nav class="tabs" aria-label="หน้ารายการไฟล์">
         <NuxtLink to="/" exact-active-class="active">ต้นทาง</NuxtLink>
         <NuxtLink to="/destination" active-class="active">ปลายทาง</NuxtLink>
+        <NuxtLink to="/history" active-class="active">ประวัติ</NuxtLink>
       </nav>
 
       <slot />
-      <p class="demo-note">ข้อมูลตัวอย่าง · ยังไม่อ่านไฟล์จากเครื่อง</p>
     </main>
   </div>
 </template>
@@ -99,4 +98,45 @@ tbody tr:last-child td { border-bottom: 0; }
   th, td, .panel-footer { padding-inline: 14px; }
 }
 
+ .file-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100% - 32px, 420px);
+  height: 42px;
+  margin: 14px 16px;
+  padding: 0 13px;
+  color: #78877d;
+  background: #fff;
+  border: 1px solid #d6ddd7;
+  border-radius: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.file-search:focus-within {
+  border-color: #4d866d;
+  box-shadow: 0 0 0 3px rgb(77 134 109 / 12%);
+}
+
+.file-search svg {
+  display: block;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.file-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  color: #303a35;
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
 </style>

@@ -20,18 +20,19 @@ func NewDbConnection() (*gorm.DB, error) {
 	}
 
 	dbPath := strings.TrimSpace(os.Getenv("DATABASE"))
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		return nil, fmt.Errorf("get user config directory: %w", err)
-	}
-	appDataDir := filepath.Join(configDir, "Backup_image")
 	if dbPath == "" {
-		dbPath = filepath.Join(appDataDir, "image.db")
-	} else if !filepath.IsAbs(dbPath) {
-		dbPath, err = filepath.Abs(dbPath)
+		defaultPath, err := defaultDatabasePath()
+		if err != nil {
+			return nil, fmt.Errorf("resolve default database path: %w", err)
+		}
+		dbPath = defaultPath
+	}
+	if !filepath.IsAbs(dbPath) {
+		absolutePath, err := filepath.Abs(dbPath)
 		if err != nil {
 			return nil, fmt.Errorf("resolve database path: %w", err)
 		}
+		dbPath = absolutePath
 	}
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("create database directory: %w", err)
@@ -53,4 +54,43 @@ func NewDbConnection() (*gorm.DB, error) {
 	}
 
 	return database, nil
+}
+
+func defaultDatabasePath() (string, error) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("get working directory: %w", err)
+	}
+	if path := findDatabaseFrom(workingDirectory); path != "" {
+		return path, nil
+	}
+
+	executable, err := os.Executable()
+	if err != nil {
+		return "", fmt.Errorf("get executable path: %w", err)
+	}
+	if path := findDatabaseFrom(filepath.Dir(executable)); path != "" {
+		return path, nil
+	}
+
+	configDirectory, err := os.UserConfigDir()
+	if err != nil {
+		return "", fmt.Errorf("get user config directory: %w", err)
+	}
+	return filepath.Join(configDirectory, "Backup_image", "image.db"), nil
+}
+
+func findDatabaseFrom(directory string) string {
+	for range 5 {
+		candidate := filepath.Join(directory, "database", "image.db")
+		if info, err := os.Stat(candidate); err == nil && info.Mode().IsRegular() {
+			return candidate
+		}
+		parent := filepath.Dir(directory)
+		if parent == directory {
+			break
+		}
+		directory = parent
+	}
+	return ""
 }

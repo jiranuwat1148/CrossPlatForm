@@ -42,3 +42,18 @@ wails build
 Nuxt runs in client-side mode. Wails uses `npm run generate` to create the static
 frontend in `frontend/.output/public` and embeds it into the application.
 The executable is written to `build/bin`.
+
+## Architecture
+
+- `main.go` opens the shared SQLite database and wires repositories and services.
+- `app.go` exposes the Wails API and forwards calls to services.
+- `service/` contains backup and image-analysis business logic.
+- `repository/` contains GORM queries and database access.
+- `model/` defines the SQLite records.
+- `frontend/app/` contains Nuxt pages, components, and shared state; the folders
+  plugin calls the Wails bindings.
+
+Database work receives the Wails startup context through each service. The app
+uses an existing `database/image.db` beside the working directory or executable
+when found; otherwise it stores `image.db` under the user's `Backup_image`
+config directory. Set `DATABASE` to override the path.
